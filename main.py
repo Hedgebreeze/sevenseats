@@ -143,19 +143,23 @@ def build_reservation_url(restaurant):
     )
 
 
+def format_slot_datetime(slot_time_iso):
+    """
+    Formats a slot timestamp into compact human-friendly date/time strings.
+    """
+    try:
+        slot_dt = datetime.datetime.strptime(slot_time_iso, "%Y-%m-%d %H:%M:%S")
+        return slot_dt.strftime("%-I:%M %p"), slot_dt.strftime("%a, %b %-d")
+    except ValueError:
+        return slot_time_iso, slot_time_iso
+
+
 def generate_message(restaurant, slot):
     slot_description = slot.get("public_time_slot_description", "Unknown")
-    shift_category = slot.get("shift_category", "UNKNOWN")
-    prefix = getattr(config, "NOTIFICATION_PREFIX", "").strip()
-    prefix_line = f"{prefix}\n" if prefix else ""
+    time_label, date_label = format_slot_datetime(slot["time_iso"])
     return (
-        f"{prefix_line}"
-        f"{restaurant['name']}: booking available\n"
-        f"Time: {slot['time_iso']}\n"
-        f"Shift: {shift_category}\n"
-        f"Seating: {slot_description}\n"
-        f"Party size: {restaurant['num_people']}\n\n"
-        f"Book here: {build_reservation_url(restaurant)}"
+        f"Table for {restaurant['num_people']} @ {time_label} on {date_label}\n"
+        f"{slot_description}"
     )
 
 
@@ -342,14 +346,7 @@ def mark_seen(seen_state, key, slot_present, notified, reason, now_ts):
 
 def notify_match(restaurant, slot):
     message = generate_message(restaurant, slot)
-    title_template = getattr(
-        config, "PUSHOVER_TITLE_TEMPLATE", "{restaurant} reservation available"
-    )
-    title = title_template.format(
-        restaurant=restaurant["name"],
-        venue=restaurant["venue"],
-        party_size=restaurant["num_people"],
-    )
+    title = f"Reservation found at {restaurant['name']}!!"
     reservation_url = build_reservation_url(restaurant)
     send_pushover(title, message, reservation_url)
     send_email(title, message)

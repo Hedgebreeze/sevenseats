@@ -44,16 +44,13 @@ Set these repository secrets:
 
 - `PUSHOVER_APP_TOKEN`
 - `PUSHOVER_USER_KEY`
-- `SEVENROOMS_RESTAURANTS_JSON`
 - `GIST_ID`
 - `GIST_TOKEN`
 
 Optional secrets:
 
 - `PUSHOVER_PRIORITY`
-- `PUSHOVER_TITLE_TEMPLATE`
 - `PUSHOVER_URL_TITLE`
-- `NOTIFICATION_PREFIX`
 - `RENOTIFY_MINUTES`
 - `ENABLE_EMAIL`
 - `EMAIL_USERNAME`
@@ -62,51 +59,14 @@ Optional secrets:
 - `EMAIL_SMTP_PORT`
 - `EMAIL_TO`
 
-Example `SEVENROOMS_RESTAURANTS_JSON` value:
+Restaurant config now lives publicly in `config.example.py`, which the workflow copies to `config.py` at runtime.
 
-```json
-[
-  {
-    "name": "Manhatta",
-    "venue": "manhatta",
-    "reservation_url": "https://www.sevenrooms.com/explore/manhatta/reservations/create/search/",
-    "num_people": 2,
-    "main_time": "19:00",
-    "times_needed": ["19:00:00", "19:30:00"],
-    "dates_needed": ["2026-04-25", "2026-04-26"],
-    "enable_lunch": false,
-    "enable_dinner": true
-  },
-  {
-    "name": "The Corner Store",
-    "venue": "thecornerstore",
-    "reservation_url": "https://fp.sevenrooms.com/explore/thecornerstore/reservations/create/search/",
-    "num_people": 2,
-    "main_time": "19:00",
-    "times_needed": ["19:00:00", "19:30:00"],
-    "dates_needed": ["2026-04-25"],
-    "enable_lunch": false,
-    "enable_dinner": true
-  }
-]
-```
+Pushover format now mimics Stonewatch:
 
-Pushover message customization:
-
-- `PUSHOVER_TITLE_TEMPLATE`
-  Example: `NYC table drop: {restaurant}`
-- `NOTIFICATION_PREFIX`
-  Example: `Hard-to-get NYC res alert`
-- `PUSHOVER_URL_TITLE`
-  Example: `Book this table`
-
-Supported template values in `PUSHOVER_TITLE_TEMPLATE`:
-
-- `{restaurant}`
-- `{venue}`
-- `{party_size}`
-
-If you want GitHub Actions to be your primary runner, keep your real targets in that secret and treat local `config.py` as a dev copy.
+- Title: `Reservation found at [restaurant]!!`
+- Message: `Table for [party size] @ [time] on [date]`
+- Second line: seating / slot description
+- Clickthrough button text: `PUSHOVER_URL_TITLE`
 
 GitHub Actions now supports timezone-aware schedules, so this workflow is configured directly in Eastern time rather than manually converting cron expressions to UTC.
 

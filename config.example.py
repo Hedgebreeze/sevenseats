@@ -4,9 +4,7 @@ import os
 PUSHOVER_APP_TOKEN = os.getenv("PUSHOVER_APP_TOKEN", "")
 PUSHOVER_USER_KEY = os.getenv("PUSHOVER_USER_KEY", "")
 PUSHOVER_PRIORITY = int(os.getenv("PUSHOVER_PRIORITY", "0"))
-PUSHOVER_TITLE_TEMPLATE = "NYC table drop: {restaurant}"
 PUSHOVER_URL_TITLE = "Book this table"
-NOTIFICATION_PREFIX = "Hard-to-get NYC reservation alert"
 GIST_ID = os.getenv("GIST_ID", "")
 GIST_TOKEN = os.getenv("GIST_TOKEN", "")
 RENOTIFY_MINUTES = int(os.getenv("RENOTIFY_MINUTES", "180"))
