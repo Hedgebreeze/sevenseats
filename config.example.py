@@ -1,21 +1,53 @@
-TELEGRAM_CHAT_ID = ""  # Your Telegram chat id. Example: -192713119
-BOT_SECRET = ""  # Your bot secret. Example: bot18123912371:AG0FJAP7lXjWgvASDAjE48qP324JJSKO0EkASD
-ENABLE_EMAIL = False
-EMAIL_USERNAME = ""  # Your email username. Example: test@example.com
-EMAIL_PASSWORD = ""  # Your email password. Example: password
-EMAIL_SMTP_SERVER = "smtp.gmail.com"  # Your email smtp server. Example: smtp.gmail.com
-EMAIL_SMTP_PORT = 587  # Your email smtp port. Example: 587
-EMAIL_TO = ""  # Email address to notify. Example: email@example.com
-NUM_PEOPLE = 2  # Number of people you want the booking for. Example: 2
-MAIN_TIME = "19:15"  # Main time to look for. Example: 19:15 (24hr format)
-TIMES_NEEDED = [
-    "19:00:00",
-    "19:30:00",
-    "19:45:00",
-]  # Alternative time slots you want look for. Example: ['19:00:00', '19:30:00', '19:45:00'] (24hr format)
-DATES_NEEDED = [
-    "2024-01-01",
-    "2024-01-02",
-]  # Dates you want to look for. Example: ['2021-10-01', '2021-10-02'] (YYYY-MM-DD format)
-VENUE = ""  # Venue name/ Restaurant ID (FOLLOW how to get restuarant ID from readme for steps). Example: sticksnsushicoventgarden
-RETRY_AFTER = 120  # seconds to wait before checking again
+import json
+import os
+
+PUSHOVER_APP_TOKEN = os.getenv("PUSHOVER_APP_TOKEN", "")
+PUSHOVER_USER_KEY = os.getenv("PUSHOVER_USER_KEY", "")
+PUSHOVER_PRIORITY = int(os.getenv("PUSHOVER_PRIORITY", "0"))
+PUSHOVER_TITLE_TEMPLATE = os.getenv(
+    "PUSHOVER_TITLE_TEMPLATE",
+    "{restaurant} reservation available",
+)
+PUSHOVER_URL_TITLE = os.getenv("PUSHOVER_URL_TITLE", "Open reservation")
+NOTIFICATION_PREFIX = os.getenv("NOTIFICATION_PREFIX", "")
+GIST_ID = os.getenv("GIST_ID", "")
+GIST_TOKEN = os.getenv("GIST_TOKEN", "")
+RENOTIFY_MINUTES = int(os.getenv("RENOTIFY_MINUTES", "180"))
+
+ENABLE_EMAIL = os.getenv("ENABLE_EMAIL", "false").lower() in {"1", "true", "yes"}
+EMAIL_USERNAME = os.getenv("EMAIL_USERNAME", "")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
+EMAIL_SMTP_SERVER = os.getenv("EMAIL_SMTP_SERVER", "smtp.gmail.com")
+EMAIL_SMTP_PORT = int(os.getenv("EMAIL_SMTP_PORT", "587"))
+EMAIL_TO = os.getenv("EMAIL_TO", "")
+
+RETRY_AFTER = int(os.getenv("RETRY_AFTER", "120"))
+
+DEFAULT_RESTAURANTS = [
+    {
+        "name": "Manhatta",
+        "venue": "manhatta",
+        "reservation_url": "https://www.sevenrooms.com/explore/manhatta/reservations/create/search/",
+        "num_people": 2,
+        "main_time": "19:00",
+        "times_needed": ["19:00:00", "19:30:00"],
+        "dates_needed": ["2026-04-25", "2026-04-26"],
+        "enable_lunch": False,
+        "enable_dinner": True,
+    },
+    {
+        "name": "Or'esh",
+        "venue": "450wbroadway",
+        "reservation_url": "https://www.sevenrooms.com/explore/450wbroadway/reservations/create/search/",
+        "num_people": 2,
+        "main_time": "19:00",
+        "times_needed": ["19:00:00", "19:30:00"],
+        "dates_needed": ["2026-04-25"],
+        "enable_lunch": False,
+        "enable_dinner": True,
+    },
+]
+
+RESTAURANTS = json.loads(
+    os.getenv("SEVENROOMS_RESTAURANTS_JSON", json.dumps(DEFAULT_RESTAURANTS))
+)

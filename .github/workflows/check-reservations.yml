@@ -1,0 +1,74 @@
+name: Check Reservations
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 9-10 * * *"
+      timezone: "America/New_York"
+    - cron: "*/15 7-8,11-23 * * *"
+      timezone: "America/New_York"
+    - cron: "0 0-6 * * *"
+      timezone: "America/New_York"
+
+concurrency:
+  group: sevenrooms-checker
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create runtime config
+        run: cp config.example.py config.py
+
+      - name: Run reservation checker
+        env:
+          RUN_ONCE: "true"
+          PUSHOVER_APP_TOKEN: ${{ secrets.PUSHOVER_APP_TOKEN }}
+          PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
+          PUSHOVER_PRIORITY: ${{ secrets.PUSHOVER_PRIORITY }}
+          PUSHOVER_TITLE_TEMPLATE: ${{ secrets.PUSHOVER_TITLE_TEMPLATE }}
+          PUSHOVER_URL_TITLE: ${{ secrets.PUSHOVER_URL_TITLE }}
+          NOTIFICATION_PREFIX: ${{ secrets.NOTIFICATION_PREFIX }}
+          GIST_ID: ${{ secrets.GIST_ID }}
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          RENOTIFY_MINUTES: ${{ secrets.RENOTIFY_MINUTES }}
+          SEVENROOMS_RESTAURANTS_JSON: ${{ secrets.SEVENROOMS_RESTAURANTS_JSON }}
+          ENABLE_EMAIL: ${{ secrets.ENABLE_EMAIL }}
+          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_SMTP_SERVER: ${{ secrets.EMAIL_SMTP_SERVER }}
+          EMAIL_SMTP_PORT: ${{ secrets.EMAIL_SMTP_PORT }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python main.py
+
+      - name: Commit logs (if any)
+        run: |
+          if [ -f availability_log.csv ]; then
+            git config user.email "actions@github.com"
+            git config user.name "GitHub Actions"
+            git fetch origin main
+            git pull --rebase origin main || true
+            git add availability_log.csv
+            git diff --cached --quiet || git commit -m "update reservation logs [skip ci]"
+            for i in 1 2 3; do
+              git push origin main && break
+              echo "Push failed, retrying after pull..."
+              git pull --rebase origin main
+            done
+          fi
