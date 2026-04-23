@@ -42,13 +42,9 @@ jobs:
           PUSHOVER_APP_TOKEN: ${{ secrets.PUSHOVER_APP_TOKEN }}
           PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
           PUSHOVER_PRIORITY: ${{ secrets.PUSHOVER_PRIORITY }}
-          PUSHOVER_TITLE_TEMPLATE: ${{ secrets.PUSHOVER_TITLE_TEMPLATE }}
-          PUSHOVER_URL_TITLE: ${{ secrets.PUSHOVER_URL_TITLE }}
-          NOTIFICATION_PREFIX: ${{ secrets.NOTIFICATION_PREFIX }}
           GIST_ID: ${{ secrets.GIST_ID }}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           RENOTIFY_MINUTES: ${{ secrets.RENOTIFY_MINUTES }}
-          SEVENROOMS_RESTAURANTS_JSON: ${{ secrets.SEVENROOMS_RESTAURANTS_JSON }}
           ENABLE_EMAIL: ${{ secrets.ENABLE_EMAIL }}
           EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
