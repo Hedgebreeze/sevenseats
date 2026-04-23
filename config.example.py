@@ -1,22 +1,30 @@
 import json
 import os
 
+
+def env_int(name, default):
+    value = os.getenv(name, "").strip()
+    if not value:
+        return default
+    return int(value)
+
+
 PUSHOVER_APP_TOKEN = os.getenv("PUSHOVER_APP_TOKEN", "")
 PUSHOVER_USER_KEY = os.getenv("PUSHOVER_USER_KEY", "")
-PUSHOVER_PRIORITY = int(os.getenv("PUSHOVER_PRIORITY", "0"))
+PUSHOVER_PRIORITY = env_int("PUSHOVER_PRIORITY", 0)
 PUSHOVER_URL_TITLE = "Book this table"
 GIST_ID = os.getenv("GIST_ID", "")
 GIST_TOKEN = os.getenv("GIST_TOKEN", "")
-RENOTIFY_MINUTES = int(os.getenv("RENOTIFY_MINUTES", "180"))
+RENOTIFY_MINUTES = env_int("RENOTIFY_MINUTES", 180)
 
 ENABLE_EMAIL = os.getenv("ENABLE_EMAIL", "false").lower() in {"1", "true", "yes"}
 EMAIL_USERNAME = os.getenv("EMAIL_USERNAME", "")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
 EMAIL_SMTP_SERVER = os.getenv("EMAIL_SMTP_SERVER", "smtp.gmail.com")
-EMAIL_SMTP_PORT = int(os.getenv("EMAIL_SMTP_PORT", "587"))
+EMAIL_SMTP_PORT = env_int("EMAIL_SMTP_PORT", 587)
 EMAIL_TO = os.getenv("EMAIL_TO", "")
 
-RETRY_AFTER = int(os.getenv("RETRY_AFTER", "120"))
+RETRY_AFTER = env_int("RETRY_AFTER", 120)
 
 RESTAURANTS = [
     {
