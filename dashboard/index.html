@@ -107,10 +107,84 @@
       color: var(--accent);
       font-weight: 600;
     }
+    .password-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at top left, rgba(138,46,19,0.12), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(79,98,74,0.12), transparent 32%),
+        var(--bg);
+    }
+    .password-screen.hidden { display: none; }
+    .password-card {
+      width: 100%;
+      max-width: 360px;
+      padding: 28px;
+      border-radius: 24px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 40px rgba(31, 26, 23, 0.08);
+      text-align: center;
+    }
+    .password-title {
+      font-family: "Instrument Serif", serif;
+      font-size: 42px;
+      line-height: 0.95;
+      margin: 0 0 12px;
+    }
+    .password-copy {
+      color: var(--muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .password-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.92);
+      color: var(--ink);
+      text-align: center;
+      font: inherit;
+    }
+    .password-button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px 16px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .password-error {
+      min-height: 20px;
+      margin-top: 10px;
+      color: var(--accent);
+      font-size: 13px;
+    }
+    .main-content.hidden { display: none; }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="password-screen" id="passwordScreen">
+    <div class="password-card">
+      <h1 class="password-title">SevenSeats</h1>
+      <div class="password-copy">Enter the dashboard password to continue.</div>
+      <input id="passwordInput" class="password-input" type="password" placeholder="Password" />
+      <button id="passwordButton" class="password-button">Unlock</button>
+      <div id="passwordError" class="password-error"></div>
+    </div>
+  </div>
+
+  <div class="wrap main-content hidden" id="mainContent">
     <h1>SevenSeats</h1>
     <div class="subhead">
       Two lightweight dashboards inspired by Stonewatch. Both are driven by the committed
@@ -146,5 +220,36 @@
       <span class="pill">Stonewatch-inspired</span>
     </div>
   </div>
+
+  <script>
+    const DASHBOARD_PASSWORD = "sevenrooms";
+    const DASHBOARD_KEY = "sevenseats_dashboard_password";
+    const passwordScreen = document.getElementById("passwordScreen");
+    const passwordInput = document.getElementById("passwordInput");
+    const passwordButton = document.getElementById("passwordButton");
+    const passwordError = document.getElementById("passwordError");
+    const mainContent = document.getElementById("mainContent");
+
+    function unlockDashboard() {
+      if (passwordInput.value === DASHBOARD_PASSWORD) {
+        sessionStorage.setItem(DASHBOARD_KEY, "ok");
+        passwordScreen.classList.add("hidden");
+        mainContent.classList.remove("hidden");
+        return;
+      }
+      passwordError.textContent = "Wrong password.";
+      passwordInput.select();
+    }
+
+    if (sessionStorage.getItem(DASHBOARD_KEY) === "ok") {
+      passwordScreen.classList.add("hidden");
+      mainContent.classList.remove("hidden");
+    }
+
+    passwordButton.addEventListener("click", unlockDashboard);
+    passwordInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") unlockDashboard();
+    });
+  </script>
 </body>
 </html>

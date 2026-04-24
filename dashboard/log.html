@@ -31,13 +31,8 @@
         var(--bg);
     }
     .wrap { max-width: 1300px; margin: 0 auto; padding: 28px 18px 48px; }
-    .topbar {
-      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-    .topbar a {
-      color: var(--muted); text-decoration: none; font-weight: 600;
-    }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+    .topbar a { color: var(--muted); text-decoration: none; font-weight: 600; }
     h1 {
       margin: 0;
       font-family: "Instrument Serif", serif;
@@ -54,28 +49,11 @@
       box-shadow: 0 16px 40px rgba(31, 26, 23, 0.06);
       backdrop-filter: blur(16px);
     }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 14px;
-      margin: 20px 0 16px;
-    }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 20px 0 16px; }
     .card { padding: 18px; }
-    .label {
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 8px;
-    }
+    .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
     .value { font-size: 30px; font-weight: 700; }
-    .controls {
-      padding: 18px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }
+    .controls { padding: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
     label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; }
     select, input {
       width: 100%;
@@ -88,49 +66,55 @@
     }
     .panel { padding: 18px; }
     .summary-line { color: var(--muted); margin-bottom: 14px; }
-    .table-wrap {
-      overflow: auto;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(255,255,255,0.56);
-    }
-    table {
-      width: 100%;
-      min-width: 1050px;
-      border-collapse: collapse;
-    }
-    th, td {
-      text-align: left;
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
-      vertical-align: top;
-      font-size: 14px;
-    }
-    th {
-      position: sticky;
-      top: 0;
-      background: #efe7dc;
-      z-index: 1;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: 12px;
-    }
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,0.56); }
+    table { width: 100%; min-width: 1050px; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 14px; }
+    th { position: sticky; top: 0; background: #efe7dc; z-index: 1; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; }
     .mono { font-family: "JetBrains Mono", monospace; font-size: 12px; }
-    .tag {
-      display: inline-flex;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-    }
+    .tag { display: inline-flex; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
     .tag.notified { background: rgba(61,107,79,0.12); color: var(--accent-green); }
     .tag.suppressed { background: rgba(50,92,144,0.12); color: var(--accent-blue); }
     .empty { color: var(--muted); padding: 16px 0 0; }
+    .password-screen {
+      position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at top left, rgba(138,46,19,0.12), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(50,92,144,0.12), transparent 32%),
+        var(--bg);
+    }
+    .password-screen.hidden { display: none; }
+    .password-card {
+      width: 100%; max-width: 360px; padding: 28px; border-radius: 24px;
+      background: var(--card); border: 1px solid var(--line); box-shadow: 0 16px 40px rgba(31, 26, 23, 0.08);
+      text-align: center;
+    }
+    .password-title { margin: 0 0 12px; font-family: "Instrument Serif", serif; font-size: 42px; line-height: 0.95; }
+    .password-copy { color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+    .password-input {
+      width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line);
+      background: rgba(255,255,255,0.92); color: var(--ink); text-align: center; font: inherit;
+    }
+    .password-button {
+      width: 100%; margin-top: 12px; padding: 12px 16px; border: 0; border-radius: 999px;
+      background: var(--ink); color: #fff; font: inherit; font-weight: 600; cursor: pointer;
+    }
+    .password-error { min-height: 20px; margin-top: 10px; color: var(--accent); font-size: 13px; }
+    .main-content.hidden { display: none; }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="password-screen" id="passwordScreen">
+    <div class="password-card">
+      <h1 class="password-title">SevenSeats</h1>
+      <div class="password-copy">Enter the dashboard password to continue.</div>
+      <input id="passwordInput" class="password-input" type="password" placeholder="Password" />
+      <button id="passwordButton" class="password-button">Unlock</button>
+      <div id="passwordError" class="password-error"></div>
+    </div>
+  </div>
+
+  <div class="wrap main-content hidden" id="mainContent">
     <div class="topbar">
       <a href="./index.html">← Back to dashboard home</a>
       <a href="./analytics.html">Open analytics →</a>
@@ -180,6 +164,35 @@
   </div>
 
   <script>
+    const DASHBOARD_PASSWORD = "sevenrooms";
+    const DASHBOARD_KEY = "sevenseats_dashboard_password";
+    const passwordScreen = document.getElementById("passwordScreen");
+    const passwordInput = document.getElementById("passwordInput");
+    const passwordButton = document.getElementById("passwordButton");
+    const passwordError = document.getElementById("passwordError");
+    const mainContent = document.getElementById("mainContent");
+
+    function unlockDashboard() {
+      if (passwordInput.value === DASHBOARD_PASSWORD) {
+        sessionStorage.setItem(DASHBOARD_KEY, "ok");
+        passwordScreen.classList.add("hidden");
+        mainContent.classList.remove("hidden");
+        return;
+      }
+      passwordError.textContent = "Wrong password.";
+      passwordInput.select();
+    }
+
+    if (sessionStorage.getItem(DASHBOARD_KEY) === "ok") {
+      passwordScreen.classList.add("hidden");
+      mainContent.classList.remove("hidden");
+    }
+
+    passwordButton.addEventListener("click", unlockDashboard);
+    passwordInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") unlockDashboard();
+    });
+
     const state = { rows: [] };
     const restaurantFilter = document.getElementById("restaurantFilter");
     const actionFilter = document.getElementById("actionFilter");

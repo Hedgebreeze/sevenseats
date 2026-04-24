@@ -32,10 +32,7 @@
         var(--bg);
     }
     .wrap { max-width: 1320px; margin: 0 auto; padding: 28px 18px 48px; }
-    .topbar {
-      display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
     .topbar a { color: var(--muted); text-decoration: none; font-weight: 600; }
     h1 {
       margin: 0;
@@ -53,13 +50,7 @@
       box-shadow: 0 16px 40px rgba(0,0,0,0.18);
       backdrop-filter: blur(16px);
     }
-    .controls {
-      padding: 18px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      margin: 20px 0 16px;
-    }
+    .controls { padding: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 20px 0 16px; }
     label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; }
     select, input {
       width: 100%;
@@ -70,91 +61,66 @@
       color: var(--ink);
       font: inherit;
     }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 14px;
-      margin-bottom: 16px;
-    }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 16px; }
     .card { padding: 18px; }
-    .label {
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 8px;
-    }
+    .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
     .value { font-size: 30px; font-weight: 700; }
-    .grid {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 16px;
-    }
+    .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; }
     .panel { padding: 18px; }
-    .panel h2 {
-      margin: 0 0 6px;
-      font-size: 18px;
-    }
-    .panel p {
-      margin: 0 0 16px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.5;
-    }
+    .panel h2 { margin: 0 0 6px; font-size: 18px; }
+    .panel p { margin: 0 0 16px; color: var(--muted); font-size: 14px; line-height: 1.5; }
     .list { display: grid; gap: 12px; }
     .bar-row { display: grid; gap: 6px; }
-    .bar-meta {
-      display: flex; justify-content: space-between; gap: 12px; font-size: 14px;
-    }
-    .bar-track {
-      height: 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.06);
-      overflow: hidden;
-    }
-    .bar-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--accent), #f1cf95);
-    }
-    .mini-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin-top: 16px;
-    }
-    .table-wrap {
-      overflow: auto;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: rgba(255,255,255,0.03);
-    }
-    table {
-      width: 100%;
-      min-width: 640px;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-      vertical-align: top;
-      font-size: 14px;
-    }
-    th {
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
+    .bar-meta { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+    .bar-track { height: 12px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), #f1cf95); }
+    .mini-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,0.03); }
+    table { width: 100%; min-width: 640px; border-collapse: collapse; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-size: 14px; }
+    th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
     .mono { font-family: "JetBrains Mono", monospace; font-size: 12px; }
-    @media (max-width: 980px) {
-      .grid { grid-template-columns: 1fr; }
+    .password-screen {
+      position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at top left, rgba(212,172,99,0.12), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(104,140,199,0.12), transparent 35%),
+        var(--bg);
     }
+    .password-screen.hidden { display: none; }
+    .password-card {
+      width: 100%; max-width: 360px; padding: 28px; border-radius: 24px;
+      background: var(--card); border: 1px solid var(--line); box-shadow: 0 16px 40px rgba(0,0,0,0.24);
+      text-align: center;
+    }
+    .password-title { margin: 0 0 12px; font-family: "Instrument Serif", serif; font-size: 42px; line-height: 0.95; }
+    .password-copy { color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+    .password-input {
+      width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06); color: var(--ink); text-align: center; font: inherit;
+    }
+    .password-button {
+      width: 100%; margin-top: 12px; padding: 12px 16px; border: 0; border-radius: 999px;
+      background: #f5f3ef; color: #111114; font: inherit; font-weight: 700; cursor: pointer;
+    }
+    .password-error { min-height: 20px; margin-top: 10px; color: var(--rose); font-size: 13px; }
+    .main-content.hidden { display: none; }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="password-screen" id="passwordScreen">
+    <div class="password-card">
+      <h1 class="password-title">SevenSeats</h1>
+      <div class="password-copy">Enter the dashboard password to continue.</div>
+      <input id="passwordInput" class="password-input" type="password" placeholder="Password" />
+      <button id="passwordButton" class="password-button">Unlock</button>
+      <div id="passwordError" class="password-error"></div>
+    </div>
+  </div>
+
+  <div class="wrap main-content hidden" id="mainContent">
     <div class="topbar">
       <a href="./index.html">← Back to dashboard home</a>
       <a href="./log.html">Open event log →</a>
@@ -226,6 +192,35 @@
   </div>
 
   <script>
+    const DASHBOARD_PASSWORD = "sevenrooms";
+    const DASHBOARD_KEY = "sevenseats_dashboard_password";
+    const passwordScreen = document.getElementById("passwordScreen");
+    const passwordInput = document.getElementById("passwordInput");
+    const passwordButton = document.getElementById("passwordButton");
+    const passwordError = document.getElementById("passwordError");
+    const mainContent = document.getElementById("mainContent");
+
+    function unlockDashboard() {
+      if (passwordInput.value === DASHBOARD_PASSWORD) {
+        sessionStorage.setItem(DASHBOARD_KEY, "ok");
+        passwordScreen.classList.add("hidden");
+        mainContent.classList.remove("hidden");
+        return;
+      }
+      passwordError.textContent = "Wrong password.";
+      passwordInput.select();
+    }
+
+    if (sessionStorage.getItem(DASHBOARD_KEY) === "ok") {
+      passwordScreen.classList.add("hidden");
+      mainContent.classList.remove("hidden");
+    }
+
+    passwordButton.addEventListener("click", unlockDashboard);
+    passwordInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") unlockDashboard();
+    });
+
     const state = { rows: [] };
     const restaurantFilter = document.getElementById("restaurantFilter");
     const actionFilter = document.getElementById("actionFilter");
