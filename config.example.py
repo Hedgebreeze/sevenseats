@@ -16,6 +16,8 @@ PUSHOVER_URL_TITLE = "Book this table"
 GIST_ID = os.getenv("GIST_ID", "")
 GIST_TOKEN = os.getenv("GIST_TOKEN", "")
 RENOTIFY_MINUTES = env_int("RENOTIFY_MINUTES", 180)
+SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 
 ENABLE_EMAIL = os.getenv("ENABLE_EMAIL", "false").lower() in {"1", "true", "yes"}
 EMAIL_USERNAME = os.getenv("EMAIL_USERNAME", "")

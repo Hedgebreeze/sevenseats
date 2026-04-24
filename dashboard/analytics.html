@@ -129,6 +129,7 @@
     <div class="subhead">
       Ongoing trend view for SevenSeats. This is the higher-level dashboard: which restaurants surface openings,
       when notifications happen, and how much of the watcher’s activity is real sends versus cooldown suppression.
+      It reads from Supabase first, then falls back to the CSV backup.
     </div>
 
     <section class="controls">
@@ -136,6 +137,7 @@
       <label>Action<select id="actionFilter"><option value="">All actions</option><option value="NOTIFIED">NOTIFIED</option><option value="SUPPRESSED">SUPPRESSED</option></select></label>
       <label>CSV File<input id="fileInput" type="file" accept=".csv" /></label>
     </section>
+    <div style="color: var(--muted); margin: -2px 0 16px;" id="dataSourceLine">Loading data source…</div>
 
     <section class="stats">
       <div class="card"><div class="label">Rows</div><div class="value" id="totalRows">0</div></div>
@@ -191,6 +193,7 @@
     </section>
   </div>
 
+  <script src="./config.js"></script>
   <script>
     const DASHBOARD_PASSWORD = "sevenrooms";
     const DASHBOARD_KEY = "sevenseats_dashboard_password";
@@ -222,6 +225,7 @@
     });
 
     const state = { rows: [] };
+    const dashboardConfig = window.SEVENSEATS_DASHBOARD_CONFIG || {};
     const restaurantFilter = document.getElementById("restaurantFilter");
     const actionFilter = document.getElementById("actionFilter");
     const fileInput = document.getElementById("fileInput");
@@ -363,13 +367,43 @@
         .replaceAll("'", "&#39;");
     }
 
+    async function loadFromSupabase() {
+      if (!dashboardConfig.supabaseUrl || !dashboardConfig.supabaseAnonKey) {
+        throw new Error("Supabase dashboard config missing");
+      }
+      const response = await fetch(
+        `${dashboardConfig.supabaseUrl.replace(/\/$/, "")}/rest/v1/availability_logs?select=*&order=seen_at_iso.desc&limit=5000`,
+        {
+          headers: {
+            "apikey": dashboardConfig.supabaseAnonKey,
+            "Authorization": `Bearer ${dashboardConfig.supabaseAnonKey}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Supabase load failed: ${response.status}`);
+      }
+      return await response.json();
+    }
+
     async function loadDefaultCsv() {
+      const response = await fetch("../availability_log.csv", { cache: "no-store" });
+      if (!response.ok) throw new Error("Missing CSV");
+      return parseCsv(await response.text());
+    }
+
+    async function loadRows() {
       try {
-        const response = await fetch("../availability_log.csv", { cache: "no-store" });
-        if (!response.ok) throw new Error("Missing CSV");
-        state.rows = parseCsv(await response.text());
-      } catch {
-        state.rows = [];
+        state.rows = await loadFromSupabase();
+        document.getElementById("dataSourceLine").textContent = `Using Supabase as the live source (${state.rows.length.toLocaleString()} rows loaded).`;
+      } catch (supabaseError) {
+        try {
+          state.rows = await loadDefaultCsv();
+          document.getElementById("dataSourceLine").textContent = "Supabase unavailable, using CSV fallback.";
+        } catch {
+          state.rows = [];
+          document.getElementById("dataSourceLine").textContent = "No Supabase data or CSV backup available yet.";
+        }
       }
       populateRestaurants(state.rows);
       render();
@@ -385,7 +419,7 @@
       render();
     });
 
-    loadDefaultCsv();
+    loadRows();
   </script>
 </body>
 </html>

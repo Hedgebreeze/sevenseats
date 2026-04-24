@@ -5,7 +5,8 @@ This project polls the SevenRooms availability API and sends notifications when 
 It now borrows a few of the strongest ideas from `stonewatch`:
 
 - cross-run dedupe via GitHub Gist
-- historical CSV logging of every matched sighting
+- durable Supabase logging of every matched sighting and watcher run
+- historical CSV logging as a backup trail
 - a lightweight static dashboard for reviewing what the watcher has seen over time
 
 ## What Changed
@@ -14,7 +15,7 @@ It now borrows a few of the strongest ideas from `stonewatch`:
 - Supports per-restaurant lunch/dinner toggles
 - Uses Pushover for notifications
 - Deduplicates alerts across runs with a GitHub Gist
-- Logs matched sightings to `availability_log.csv`
+- Logs matched sightings to Supabase and `availability_log.csv`
 - Includes a static dashboard suite in `dashboard/`
 
 ## Local Setup
@@ -46,6 +47,8 @@ Set these repository secrets:
 - `PUSHOVER_USER_KEY`
 - `GIST_ID`
 - `GIST_TOKEN`
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
 Optional secrets:
 
@@ -83,6 +86,28 @@ The watcher stores state in a JSON file inside that Gist so it can tell the diff
 - a slot that disappeared and reappeared
 - a slot that is still around and should stay under cooldown
 
+## Supabase Setup
+
+This is now the primary analytics and dashboard store.
+
+1. Create a Supabase project.
+2. Open the SQL editor and run [supabase_schema.sql](/Users/jacob/git/sevenseats/supabase_schema.sql:1).
+3. In Supabase, copy:
+   - the project URL
+   - the service role key
+   - the publishable/anon key
+4. Add GitHub Actions secrets:
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+5. Edit [dashboard/config.js](/Users/jacob/git/sevenseats/dashboard/config.js:1) and set:
+   - `supabaseUrl`
+   - `supabaseAnonKey`
+
+Why two keys:
+
+- `SUPABASE_SERVICE_ROLE_KEY` stays secret and is used only by GitHub Actions to write data.
+- `supabaseAnonKey` is safe to expose in the dashboard because the schema only grants public read access.
+
 ## Dashboard
 
 Open [dashboard/index.html](/Users/jacob/git/sevenseats/dashboard/index.html:1) for the dashboard home.
@@ -92,7 +117,7 @@ Included views:
 - [dashboard/analytics.html](/Users/jacob/git/sevenseats/dashboard/analytics.html:1): ongoing analytics and trends
 - [dashboard/log.html](/Users/jacob/git/sevenseats/dashboard/log.html:1): raw event log of found / notified / suppressed rows
 
-Both views support filtering by restaurant, and both can read either the committed `availability_log.csv` or a manually uploaded CSV file.
+Both views support filtering by restaurant. They read from Supabase first and fall back to the committed `availability_log.csv` or a manually uploaded CSV file.
 
 ## Config Shape
 
@@ -124,4 +149,8 @@ Each item in `RESTAURANTS` can define:
 - Request-only slots are still ignored. The script only alerts on bookable slots with a non-null `access_persistent_id`.
 - Without `GIST_ID` and `GIST_TOKEN`, deduplication falls back to the current process only.
 - With Gist state enabled, duplicate notifications are suppressed across GitHub Actions runs based on `RENOTIFY_MINUTES`.
+- Suppression logic is:
+  - `FIRST_SIGHTING`: notify immediately
+  - `REAPPEARED`: notify again if the slot disappeared in a later run and then came back
+  - `COOLDOWN_XMIN`: suppress repeats until at least `RENOTIFY_MINUTES` has elapsed since the last notification
 - The workflow uses GitHub Actions `concurrency` so a new scheduled run cancels any older in-progress checker run instead of stacking them.

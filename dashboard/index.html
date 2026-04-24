@@ -187,9 +187,9 @@
   <div class="wrap main-content hidden" id="mainContent">
     <h1>SevenSeats</h1>
     <div class="subhead">
-      Two lightweight dashboards inspired by Stonewatch. Both are driven by the committed
-      <code>availability_log.csv</code> file and support filtering by restaurant so you can compare
-      Manhatta, Or'esh, The Corner Store, and The Eighty Six in one place.
+      Two lightweight dashboards inspired by Stonewatch. They read from Supabase first and
+      fall back to the committed <code>availability_log.csv</code> backup, with restaurant filters
+      so you can compare Manhatta, Or'esh, The Corner Store, and The Eighty Six in one place.
     </div>
 
     <div class="grid">
@@ -215,7 +215,7 @@
     </div>
 
     <div class="meta">
-      <span class="pill">CSV-backed</span>
+      <span class="pill">Supabase-backed</span>
       <span class="pill">Restaurant filters</span>
       <span class="pill">Stonewatch-inspired</span>
     </div>

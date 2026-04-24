@@ -14,6 +14,9 @@ concurrency:
   group: sevenrooms-checker
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -53,6 +56,8 @@ jobs:
           GIST_ID: ${{ secrets.GIST_ID }}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           RENOTIFY_MINUTES: ${{ secrets.RENOTIFY_MINUTES }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           ENABLE_EMAIL: ${{ secrets.ENABLE_EMAIL }}
           EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
@@ -66,6 +71,7 @@ jobs:
           if [ -f availability_log.csv ]; then
             git config user.email "actions@github.com"
             git config user.name "GitHub Actions"
+            rm -f config.py
             git fetch origin main
             git pull --rebase origin main || true
             git add availability_log.csv
