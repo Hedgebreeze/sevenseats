@@ -36,6 +36,14 @@ jobs:
       - name: Create runtime config
         run: cp config.example.py config.py
 
+      - name: Validate required secrets
+        env:
+          PUSHOVER_APP_TOKEN: ${{ secrets.PUSHOVER_APP_TOKEN }}
+          PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
+        run: |
+          [ -n "$PUSHOVER_APP_TOKEN" ] || (echo "Missing PUSHOVER_APP_TOKEN secret" && exit 1)
+          [ -n "$PUSHOVER_USER_KEY" ] || (echo "Missing PUSHOVER_USER_KEY secret" && exit 1)
+
       - name: Run reservation checker
         env:
           RUN_ONCE: "true"

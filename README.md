@@ -105,7 +105,8 @@ Each item in `RESTAURANTS` can define:
 - `num_people`: Party size
 - `main_time`: Primary query time in `HH:MM`
 - `times_needed`: Acceptable slot times in `HH:MM:SS`
-- `dates_needed`: Dates to watch in `YYYY-MM-DD`
+- `dates_needed`: Exact dates to watch in `YYYY-MM-DD`
+- `days_ahead`: Rolling window size if you want to watch the next N days
 - `enable_lunch`: Whether to consider `LUNCH` shifts
 - `enable_dinner`: Whether to consider `DINNER` shifts
 - `halo_size_interval`: Optional API override

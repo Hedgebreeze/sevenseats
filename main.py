@@ -280,13 +280,30 @@ def validate_restaurant(restaurant):
         "num_people",
         "main_time",
         "times_needed",
-        "dates_needed",
     ]
     missing_fields = [field for field in required_fields if field not in restaurant]
     if missing_fields:
         raise ValueError(
             f"Restaurant config is missing required fields: {', '.join(missing_fields)}"
         )
+    if "dates_needed" not in restaurant and "days_ahead" not in restaurant:
+        raise ValueError(
+            "Restaurant config must include either 'dates_needed' or 'days_ahead'."
+        )
+
+
+def dates_to_check(restaurant):
+    """
+    Returns the concrete dates to check for a restaurant.
+    """
+    if "dates_needed" in restaurant:
+        return restaurant["dates_needed"]
+    days_ahead = int(restaurant.get("days_ahead", 1))
+    today = datetime.datetime.now().date()
+    return [
+        (today + datetime.timedelta(days=offset)).strftime("%Y-%m-%d")
+        for offset in range(days_ahead)
+    ]
 
 
 def build_log_row(restaurant, slot, action, reason):
@@ -372,9 +389,9 @@ def run_check():
     for restaurant in restaurants:
         logger.info(
             f"Checking {restaurant['name']} ({restaurant['venue']}) for "
-            f"{len(restaurant['dates_needed'])} date(s)."
+            f"{len(dates_to_check(restaurant))} date(s)."
         )
-        for date_needed in restaurant["dates_needed"]:
+        for date_needed in dates_to_check(restaurant):
             available_slots = check_availability(restaurant, date_needed)
             for slot in available_slots:
                 if not slot_matches(restaurant, date_needed, slot):
