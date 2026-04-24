@@ -15,7 +15,7 @@ It now borrows a few of the strongest ideas from `stonewatch`:
 - Uses Pushover for notifications
 - Deduplicates alerts across runs with a GitHub Gist
 - Logs matched sightings to `availability_log.csv`
-- Includes a static dashboard at `dashboard/index.html`
+- Includes a static dashboard suite in `dashboard/`
 
 ## Local Setup
 
@@ -85,15 +85,14 @@ The watcher stores state in a JSON file inside that Gist so it can tell the diff
 
 ## Dashboard
 
-Open [dashboard/index.html](/Users/jacob/git/sevenseats/dashboard/index.html:1) in a browser to inspect the committed `availability_log.csv`.
+Open [dashboard/index.html](/Users/jacob/git/sevenseats/dashboard/index.html:1) for the dashboard home.
 
-It supports:
+Included views:
 
-- summary counts
-- restaurant filtering
-- notified vs suppressed views
-- free-text searching
-- manual CSV upload if you want to inspect an exported log file
+- [dashboard/analytics.html](/Users/jacob/git/sevenseats/dashboard/analytics.html:1): ongoing analytics and trends
+- [dashboard/log.html](/Users/jacob/git/sevenseats/dashboard/log.html:1): raw event log of found / notified / suppressed rows
+
+Both views support filtering by restaurant, and both can read either the committed `availability_log.csv` or a manually uploaded CSV file.
 
 ## Config Shape
 

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SevenSeats Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #111114;
+      --card: rgba(28,28,34,0.88);
+      --ink: #f5f3ef;
+      --muted: #aba39a;
+      --line: rgba(255,255,255,0.08);
+      --accent: #d4ac63;
+      --accent-soft: rgba(212,172,99,0.12);
+      --rose: #b86a7c;
+      --emerald: #4f8e76;
+      --blue: #688cc7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(212,172,99,0.08), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(104,140,199,0.08), transparent 35%),
+        var(--bg);
+    }
+    .wrap { max-width: 1320px; margin: 0 auto; padding: 28px 18px 48px; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .topbar a { color: var(--muted); text-decoration: none; font-weight: 600; }
+    h1 {
+      margin: 0;
+      font-family: "Instrument Serif", serif;
+      font-size: clamp(40px, 6vw, 68px);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      line-height: 0.96;
+    }
+    .subhead { margin-top: 8px; color: var(--muted); line-height: 1.6; max-width: 840px; }
+    .controls, .card, .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+      backdrop-filter: blur(16px);
+    }
+    .controls {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 20px 0 16px;
+    }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; }
+    select, input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      color: var(--ink);
+      font: inherit;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .card { padding: 18px; }
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .value { font-size: 30px; font-weight: 700; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+    }
+    .panel { padding: 18px; }
+    .panel h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+    .panel p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .list { display: grid; gap: 12px; }
+    .bar-row { display: grid; gap: 6px; }
+    .bar-meta {
+      display: flex; justify-content: space-between; gap: 12px; font-size: 14px;
+    }
+    .bar-track {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #f1cf95);
+    }
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+    }
+    table {
+      width: 100%;
+      min-width: 640px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .mono { font-family: "JetBrains Mono", monospace; font-size: 12px; }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <a href="./index.html">← Back to dashboard home</a>
+      <a href="./log.html">Open event log →</a>
+    </div>
+    <h1>Analytics</h1>
+    <div class="subhead">
+      Ongoing trend view for SevenSeats. This is the higher-level dashboard: which restaurants surface openings,
+      when notifications happen, and how much of the watcher’s activity is real sends versus cooldown suppression.
+    </div>
+
+    <section class="controls">
+      <label>Restaurant<select id="restaurantFilter"><option value="">All restaurants</option></select></label>
+      <label>Action<select id="actionFilter"><option value="">All actions</option><option value="NOTIFIED">NOTIFIED</option><option value="SUPPRESSED">SUPPRESSED</option></select></label>
+      <label>CSV File<input id="fileInput" type="file" accept=".csv" /></label>
+    </section>
+
+    <section class="stats">
+      <div class="card"><div class="label">Rows</div><div class="value" id="totalRows">0</div></div>
+      <div class="card"><div class="label">Restaurants</div><div class="value" id="restaurantCount">0</div></div>
+      <div class="card"><div class="label">Notified</div><div class="value" id="notifiedCount">0</div></div>
+      <div class="card"><div class="label">Suppressed</div><div class="value" id="suppressedCount">0</div></div>
+      <div class="card"><div class="label">Latest Seen</div><div class="value mono" id="latestSeen">-</div></div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>By Restaurant</h2>
+        <p>Which venues are generating the most matched watcher rows in the current filter set.</p>
+        <div class="list" id="restaurantBars"></div>
+      </div>
+      <div class="panel">
+        <h2>By Action</h2>
+        <p>Quick breakdown of what the watcher is actually doing.</p>
+        <div class="list" id="actionBars"></div>
+      </div>
+    </section>
+
+    <section class="mini-grid">
+      <div class="panel">
+        <h2>Hot Hours</h2>
+        <p>Slot hours that show up most often in the current dataset.</p>
+        <div class="list" id="hourBars"></div>
+      </div>
+      <div class="panel">
+        <h2>Weekdays</h2>
+        <p>Which days are surfacing the most matched rows.</p>
+        <div class="list" id="weekdayBars"></div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 16px;">
+      <h2>Recent Notified Events</h2>
+      <p>The newest rows that actually triggered a notification.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Seen</th>
+              <th>Restaurant</th>
+              <th>Slot</th>
+              <th>Reason</th>
+              <th>Seating</th>
+            </tr>
+          </thead>
+          <tbody id="recentNotified"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const state = { rows: [] };
+    const restaurantFilter = document.getElementById("restaurantFilter");
+    const actionFilter = document.getElementById("actionFilter");
+    const fileInput = document.getElementById("fileInput");
+
+    function parseCsv(text) {
+      const lines = text.trim().split(/\r?\n/);
+      if (!lines.length) return [];
+      const headers = splitCsvLine(lines[0]);
+      return lines.slice(1).filter(Boolean).map(line => {
+        const values = splitCsvLine(line);
+        const row = {};
+        headers.forEach((header, index) => row[header] = values[index] ?? "");
+        return row;
+      });
+    }
+
+    function splitCsvLine(line) {
+      const values = [];
+      let current = "";
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"' && line[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === "," && !inQuotes) {
+          values.push(current);
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+      values.push(current);
+      return values;
+    }
+
+    function populateRestaurants(rows) {
+      const current = restaurantFilter.value;
+      const restaurants = [...new Set(rows.map(row => row.restaurant_name).filter(Boolean))].sort();
+      restaurantFilter.innerHTML = '<option value="">All restaurants</option>';
+      restaurants.forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        restaurantFilter.appendChild(option);
+      });
+      restaurantFilter.value = current;
+    }
+
+    function filteredRows() {
+      const restaurant = restaurantFilter.value;
+      const action = actionFilter.value;
+      return state.rows.filter(row => {
+        if (restaurant && row.restaurant_name !== restaurant) return false;
+        if (action && row.notification_action !== action) return false;
+        return true;
+      });
+    }
+
+    function groupCount(rows, keyFn) {
+      const counts = new Map();
+      rows.forEach(row => {
+        const key = keyFn(row);
+        counts.set(key, (counts.get(key) || 0) + 1);
+      });
+      return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+    }
+
+    function renderBars(containerId, entries, formatter = key => key) {
+      const root = document.getElementById(containerId);
+      root.innerHTML = "";
+      const max = entries.length ? entries[0][1] : 1;
+      entries.slice(0, 10).forEach(([key, count]) => {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        row.innerHTML = `
+          <div class="bar-meta"><span>${formatter(key)}</span><strong>${count}</strong></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${(count / max) * 100}%"></div></div>
+        `;
+        root.appendChild(row);
+      });
+      if (!entries.length) {
+        root.innerHTML = '<div style="color: var(--muted);">No data for this view.</div>';
+      }
+    }
+
+    function renderRecentNotified(rows) {
+      const tbody = document.getElementById("recentNotified");
+      tbody.innerHTML = "";
+      rows
+        .filter(row => row.notification_action === "NOTIFIED")
+        .sort((a, b) => (b.seen_at_iso || "").localeCompare(a.seen_at_iso || ""))
+        .slice(0, 12)
+        .forEach(row => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="mono">${escapeHtml(row.seen_at_iso)}</td>
+            <td>${escapeHtml(row.restaurant_name)}</td>
+            <td class="mono">${escapeHtml(row.slot_at_iso)}</td>
+            <td class="mono">${escapeHtml(row.notification_reason)}</td>
+            <td>${escapeHtml(row.public_time_slot_description || "")}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+    }
+
+    function render() {
+      const rows = filteredRows();
+      document.getElementById("totalRows").textContent = rows.length.toLocaleString();
+      document.getElementById("restaurantCount").textContent = new Set(rows.map(row => row.restaurant_name)).size;
+      document.getElementById("notifiedCount").textContent = rows.filter(row => row.notification_action === "NOTIFIED").length.toLocaleString();
+      document.getElementById("suppressedCount").textContent = rows.filter(row => row.notification_action === "SUPPRESSED").length.toLocaleString();
+      document.getElementById("latestSeen").textContent = rows.length
+        ? rows.slice().sort((a, b) => (b.seen_at_iso || "").localeCompare(a.seen_at_iso || ""))[0].seen_at_iso
+        : "-";
+
+      renderBars("restaurantBars", groupCount(rows, row => row.restaurant_name));
+      renderBars("actionBars", groupCount(rows, row => row.notification_action));
+      renderBars("hourBars", groupCount(rows, row => (row.slot_at_iso || "").slice(11, 13)), key => `${key}:00`);
+      renderBars("weekdayBars", groupCount(rows, row => {
+        try {
+          const dt = new Date((row.slot_at_iso || "").replace(" ", "T"));
+          return dt.toLocaleDateString(undefined, { weekday: "short" });
+        } catch {
+          return "Unknown";
+        }
+      }));
+      renderRecentNotified(rows);
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    async function loadDefaultCsv() {
+      try {
+        const response = await fetch("../availability_log.csv", { cache: "no-store" });
+        if (!response.ok) throw new Error("Missing CSV");
+        state.rows = parseCsv(await response.text());
+      } catch {
+        state.rows = [];
+      }
+      populateRestaurants(state.rows);
+      render();
+    }
+
+    restaurantFilter.addEventListener("change", render);
+    actionFilter.addEventListener("change", render);
+    fileInput.addEventListener("change", async event => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      state.rows = parseCsv(await file.text());
+      populateRestaurants(state.rows);
+      render();
+    });
+
+    loadDefaultCsv();
+  </script>
+</body>
+</html>
