@@ -2,6 +2,11 @@ name: Check Reservations
 
 on:
   workflow_dispatch:
+    inputs:
+      send_test_notification:
+        description: Send a test Pushover notification before checking reservations
+        type: boolean
+        default: false
   schedule:
     - cron: "*/5 9-10 * * *"
       timezone: "America/New_York"
@@ -49,6 +54,24 @@ jobs:
         run: |
           [ -n "$PUSHOVER_APP_TOKEN" ] || (echo "Missing PUSHOVER_APP_TOKEN secret" && exit 1)
           [ -n "$PUSHOVER_USER_KEY" ] || (echo "Missing PUSHOVER_USER_KEY secret" && exit 1)
+
+      - name: Send test Pushover notification
+        if: github.event_name == 'workflow_dispatch' && inputs.send_test_notification
+        env:
+          PUSHOVER_APP_TOKEN: ${{ secrets.PUSHOVER_APP_TOKEN }}
+          PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
+        run: |
+          python - <<'PY'
+          import main
+          main.config.PUSHOVER_URL_TITLE = "Open SevenSeats"
+          sent = main.send_pushover(
+              "SevenSeats test notification",
+              "This is a test of your reservation alerts. No available table is implied.",
+              "https://hedgebreeze.github.io/sevenseats/",
+          )
+          if not sent:
+              raise SystemExit("Test Pushover notification failed")
+          PY
 
       - name: Run reservation checker
         env:

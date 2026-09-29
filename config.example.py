@@ -32,12 +32,15 @@ RESTAURANTS = [
     {
         "name": "La Renommée",
         "venue": "larenommee",
-        "reservation_url": "https://www.sevenrooms.com/explore/larenommee/reservations/create/search/?party_size=2&date=2026-10-25",
+        "reservation_url": "https://www.sevenrooms.com/explore/larenommee/reservations/create/search/",
         "timezone": "Europe/Paris",
         "num_people": 2,
         "main_time": "19:00",
-        "times_needed": ["19:00:00", "19:30:00"],
-        "dates_needed": ["2026-10-25"],
+        "time_range": ["17:00:00", "21:00:00"],
+        "dates_needed": [
+            "2026-10-22", "2026-10-23", "2026-10-24",
+            "2026-10-25", "2026-10-26", "2026-10-27",
+        ],
         "enable_lunch": False,
         "enable_dinner": True,
     },

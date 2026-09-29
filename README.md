@@ -45,6 +45,8 @@ This repo now includes [`.github/workflows/check-reservations.yml`](/Users/jacob
 
 It uses `RUN_ONCE=true`, so each Actions job does a single polling pass and exits cleanly.
 
+To test Pushover, manually run the workflow with `send_test_notification` checked. Scheduled runs leave this off.
+
 Current schedule in `America/New_York`:
 
 - Every 5 minutes from 9:00 AM through 10:59 AM
@@ -136,10 +138,11 @@ Each item in `RESTAURANTS` can define:
 - `name`: Friendly label used in logs and notifications
 - `venue`: SevenRooms venue slug
 - `timezone`: Venue's IANA timezone; defaults to `America/New_York`
-- `reservation_url`: Optional booking link to include in notifications
+- `reservation_url`: Optional booking link; notifications add the matched date and party size
 - `num_people`: Party size
 - `main_time`: Primary query time in `HH:MM`
-- `times_needed`: Acceptable slot times in `HH:MM:SS`
+- `times_needed`: Acceptable slot times in `HH:MM:SS`, or use `time_range`
+- `time_range`: Inclusive `[start, end]` in `HH:MM:SS`, in the venue's timezone; use instead of `times_needed`
 - `dates_needed`: Exact dates to watch in `YYYY-MM-DD`
 - `days_ahead`: Rolling window size if you want to watch the next N days
 - `enable_lunch`: Whether to consider `LUNCH` shifts
@@ -158,7 +161,7 @@ Each item in `RESTAURANTS` can define:
 
 ## Notes
 
-- The La Renommée watch is for 2 guests on October 25, 2026 at 19:00 or 19:30 in `Europe/Paris`. Its notification link preserves the date and party size.
+- The La Renommée watch is for 2 guests from Thursday, October 22 through Tuesday, October 27, 2026, inclusive, at any time from 17:00 through 21:00 in `Europe/Paris`. Each notification links to its matched date and party size.
 - Request-only slots are still ignored. The script only alerts on bookable slots with a non-null `access_persistent_id`.
 - Without `GIST_ID` and `GIST_TOKEN`, deduplication falls back to the current process only.
 - With Gist state enabled, duplicate notifications are suppressed across GitHub Actions runs based on `RENOTIFY_MINUTES`.

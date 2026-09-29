@@ -5,6 +5,7 @@ import logging
 import os
 import smtplib
 import time
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from zoneinfo import ZoneInfo
 
 import requests
@@ -200,11 +201,17 @@ def is_enabled_shift(shift_category, restaurant):
     return True
 
 
-def build_reservation_url(restaurant):
-    return restaurant.get(
+def build_reservation_url(restaurant, slot=None):
+    url = restaurant.get(
         "reservation_url",
         f"https://www.sevenrooms.com/explore/{restaurant['venue']}/reservations/create/search/",
     )
+    if slot is None:
+        return url
+    parts = urlsplit(url)
+    query = dict(parse_qsl(parts.query, keep_blank_values=True))
+    query.update(party_size=restaurant["num_people"], date=slot["time_iso"].split(" ")[0])
+    return urlunsplit(parts._replace(query=urlencode(query)))
 
 
 def restaurant_timezone(restaurant):
@@ -339,13 +346,13 @@ def check_availability(restaurant, date_needed, stats):
 
 
 def slot_matches(restaurant, date_needed, slot):
-    times_i_want = {
-        f"{date_needed} {slot_time}" for slot_time in restaurant["times_needed"]
-    }
-    return (
-        slot["time_iso"] in times_i_want
-        and slot.get("access_persistent_id") is not None
-    )
+    slot_date, _, slot_time = slot["time_iso"].partition(" ")
+    if slot_date != date_needed or slot.get("access_persistent_id") is None:
+        return False
+    if "time_range" in restaurant:
+        start, end = restaurant["time_range"]
+        return start <= slot_time <= end
+    return slot_time in restaurant["times_needed"]
 
 
 def notification_key(restaurant, slot):
@@ -362,13 +369,24 @@ def validate_restaurant(restaurant):
         "venue",
         "num_people",
         "main_time",
-        "times_needed",
     ]
     missing_fields = [field for field in required_fields if field not in restaurant]
     if missing_fields:
         raise ValueError(
             f"Restaurant config is missing required fields: {', '.join(missing_fields)}"
         )
+    if ("times_needed" in restaurant) == ("time_range" in restaurant):
+        raise ValueError("Restaurant config must include exactly one of 'times_needed' or 'time_range'.")
+    if "time_range" in restaurant:
+        time_range = restaurant["time_range"]
+        if not isinstance(time_range, (list, tuple)) or len(time_range) != 2:
+            raise ValueError("'time_range' must contain a start and end time in HH:MM:SS.")
+        for value in time_range:
+            parsed = datetime.datetime.strptime(value, "%H:%M:%S")
+            if parsed.strftime("%H:%M:%S") != value:
+                raise ValueError("'time_range' values must use HH:MM:SS.")
+        if time_range[0] > time_range[1]:
+            raise ValueError("'time_range' must start at or before its end on the same day.")
     if "dates_needed" not in restaurant and "days_ahead" not in restaurant:
         raise ValueError(
             "Restaurant config must include either 'dates_needed' or 'days_ahead'."
@@ -416,7 +434,7 @@ def build_log_row(restaurant, slot, action, reason, run_id, seen_at):
         "public_time_slot_description": slot.get(
             "public_time_slot_description", "Unknown"
         ),
-        "reservation_url": build_reservation_url(restaurant),
+        "reservation_url": build_reservation_url(restaurant, slot),
         "notification_action": action,
         "notification_reason": reason,
         "slot_key": notification_key(restaurant, slot),
@@ -470,7 +488,7 @@ def mark_seen(seen_state, key, slot_present, notified, reason, now_ts):
 def notify_match(restaurant, slot):
     message = generate_message(restaurant, slot)
     title = f"Reservation found at {restaurant['name']}!!"
-    reservation_url = build_reservation_url(restaurant)
+    reservation_url = build_reservation_url(restaurant, slot)
     pushover_sent = send_pushover(title, message, reservation_url)
     email_sent = send_email(title, message)
     return pushover_sent or email_sent
@@ -486,7 +504,8 @@ def config_snapshot(restaurants):
                 "timezone": restaurant_timezone(restaurant).key,
                 "num_people": restaurant["num_people"],
                 "main_time": restaurant["main_time"],
-                "times_needed": restaurant["times_needed"],
+                "times_needed": restaurant.get("times_needed"),
+                "time_range": restaurant.get("time_range"),
                 "days_ahead": restaurant.get("days_ahead"),
                 "dates_needed": restaurant.get("dates_needed"),
                 "enable_lunch": restaurant.get("enable_lunch", True),

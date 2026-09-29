@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 import unittest
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlsplit
 
 
 # Load the public runtime config, never a developer's local credentials.
@@ -99,13 +100,54 @@ class LaRenommeeTests(unittest.TestCase):
             self.assertEqual(main.dates_to_check(restaurant), ["2026-10-24", self.date])
 
     def test_notification_keeps_paris_wall_time_and_booking_parameters(self):
+        slot = dict(self.slot, time_iso="2026-10-27 19:00:00")
         with patch.object(main, "send_pushover", return_value=True) as push, \
              patch.object(main, "send_email", return_value=False):
-            self.assertTrue(main.notify_match(self.restaurant, self.slot))
+            self.assertTrue(main.notify_match(self.restaurant, slot))
         title, message, url = push.call_args.args
         self.assertIn("La Renommée", title)
-        self.assertIn("Table for 2 @ 7:00 PM on Sun, Oct 25", message)
-        self.assertEqual(url, self.restaurant["reservation_url"])
+        self.assertIn("Table for 2 @ 7:00 PM on Tue, Oct 27", message)
+        self.assertEqual(parse_qs(urlsplit(url).query), {
+            "party_size": ["2"], "date": ["2026-10-27"],
+        })
+
+    def test_time_window_includes_endpoints_and_non_quarter_hour_slots(self):
+        for time, expected in [
+            ("16:59:00", False), ("17:00:00", True), ("18:10:00", True),
+            ("20:59:00", True), ("21:00:00", True), ("21:00:01", False),
+        ]:
+            with self.subTest(time=time):
+                slot = dict(self.slot, time_iso=f"{self.date} {time}")
+                self.assertEqual(main.slot_matches(self.restaurant, self.date, slot), expected)
+
+    def test_exact_time_watches_still_exclude_other_times(self):
+        restaurant = dict(self.restaurant, times_needed=["19:00:00", "19:30:00"])
+        restaurant.pop("time_range")
+        main.validate_restaurant(restaurant)
+        self.assertTrue(main.slot_matches(restaurant, self.date, self.slot))
+        slot = dict(self.slot, time_iso=f"{self.date} 19:15:00")
+        self.assertFalse(main.slot_matches(restaurant, self.date, slot))
+
+    def test_invalid_time_windows_are_rejected(self):
+        for window in [[], ["17:00:00"], ["21:00:00", "17:00:00"],
+                       ["5:00:00", "21:00:00"], ["17:00:00", "25:00:00"]]:
+            with self.subTest(window=window), self.assertRaises(ValueError):
+                main.validate_restaurant(dict(self.restaurant, time_range=window))
+        with self.assertRaises(ValueError):
+            main.validate_restaurant(dict(self.restaurant, times_needed=["19:00:00"]))
+
+    def test_booking_link_replaces_stale_date_and_preserves_other_parameters(self):
+        restaurant = dict(self.restaurant, reservation_url=(
+            "https://fp.sevenrooms.com/explore/larenommee/reservations/create/search/"
+            "?date=2026-10-25&party_size=4&tracking=test#search"
+        ))
+        slot = dict(self.slot, time_iso="2026-10-22 17:00:00")
+        url = urlsplit(main.build_reservation_url(restaurant, slot))
+        self.assertEqual(url.netloc, "fp.sevenrooms.com")
+        self.assertEqual(url.fragment, "search")
+        self.assertEqual(parse_qs(url.query), {
+            "date": ["2026-10-22"], "party_size": ["2"], "tracking": ["test"],
+        })
 
 
 if __name__ == "__main__":
