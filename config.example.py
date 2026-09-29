@@ -30,6 +30,18 @@ RETRY_AFTER = env_int("RETRY_AFTER", 120)
 
 RESTAURANTS = [
     {
+        "name": "La Renommée",
+        "venue": "larenommee",
+        "reservation_url": "https://www.sevenrooms.com/explore/larenommee/reservations/create/search/?party_size=2&date=2026-10-25",
+        "timezone": "Europe/Paris",
+        "num_people": 2,
+        "main_time": "19:00",
+        "times_needed": ["19:00:00", "19:30:00"],
+        "dates_needed": ["2026-10-25"],
+        "enable_lunch": False,
+        "enable_dinner": True,
+    },
+    {
         "name": "Manhatta",
         "venue": "manhatta",
         "reservation_url": "https://www.sevenrooms.com/explore/manhatta/reservations/create/search/",

@@ -207,16 +207,20 @@ def build_reservation_url(restaurant):
     )
 
 
-def parse_slot_datetime(slot_time_iso):
+def restaurant_timezone(restaurant):
+    return ZoneInfo(restaurant.get("timezone", "America/New_York"))
+
+
+def parse_slot_datetime(slot_time_iso, timezone=NYC):
     try:
         naive = datetime.datetime.strptime(slot_time_iso, "%Y-%m-%d %H:%M:%S")
-        return naive.replace(tzinfo=NYC)
+        return naive.replace(tzinfo=timezone)
     except ValueError:
         return None
 
 
-def format_slot_datetime(slot_time_iso):
-    slot_dt = parse_slot_datetime(slot_time_iso)
+def format_slot_datetime(slot_time_iso, timezone=NYC):
+    slot_dt = parse_slot_datetime(slot_time_iso, timezone)
     if slot_dt is None:
         return slot_time_iso, slot_time_iso
     return slot_dt.strftime("%-I:%M %p"), slot_dt.strftime("%a, %b %-d")
@@ -224,7 +228,9 @@ def format_slot_datetime(slot_time_iso):
 
 def generate_message(restaurant, slot):
     slot_description = slot.get("public_time_slot_description", "Unknown")
-    time_label, date_label = format_slot_datetime(slot["time_iso"])
+    time_label, date_label = format_slot_datetime(
+        slot["time_iso"], restaurant_timezone(restaurant)
+    )
     return (
         f"Table for {restaurant['num_people']} @ {time_label} on {date_label}\n"
         f"{slot_description}"
@@ -367,13 +373,14 @@ def validate_restaurant(restaurant):
         raise ValueError(
             "Restaurant config must include either 'dates_needed' or 'days_ahead'."
         )
+    restaurant_timezone(restaurant)
 
 
 def dates_to_check(restaurant):
     if "dates_needed" in restaurant:
         return restaurant["dates_needed"]
     days_ahead = int(restaurant.get("days_ahead", 1))
-    today = datetime.datetime.now(NYC).date()
+    today = datetime.datetime.now(restaurant_timezone(restaurant)).date()
     return [
         (today + datetime.timedelta(days=offset)).strftime("%Y-%m-%d")
         for offset in range(days_ahead)
@@ -381,14 +388,18 @@ def dates_to_check(restaurant):
 
 
 def build_log_row(restaurant, slot, action, reason, run_id, seen_at):
-    slot_dt = parse_slot_datetime(slot["time_iso"])
-    seen_local = seen_at.astimezone(NYC)
+    timezone = restaurant_timezone(restaurant)
+    slot_dt = parse_slot_datetime(slot["time_iso"], timezone)
+    seen_local = seen_at.astimezone(timezone)
     lead_hours = ""
     lead_days = ""
     weekday_slot = ""
     hour_slot = ""
     if slot_dt is not None:
-        delta_seconds = (slot_dt - seen_local).total_seconds()
+        delta_seconds = (
+            slot_dt.astimezone(datetime.timezone.utc)
+            - seen_at.astimezone(datetime.timezone.utc)
+        ).total_seconds()
         lead_hours = round(delta_seconds / 3600, 1)
         lead_days = (slot_dt.date() - seen_local.date()).days
         weekday_slot = slot_dt.strftime("%a")
@@ -472,6 +483,7 @@ def config_snapshot(restaurants):
             {
                 "name": restaurant["name"],
                 "venue": restaurant["venue"],
+                "timezone": restaurant_timezone(restaurant).key,
                 "num_people": restaurant["num_people"],
                 "main_time": restaurant["main_time"],
                 "times_needed": restaurant["times_needed"],
