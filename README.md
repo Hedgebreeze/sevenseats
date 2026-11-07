@@ -162,7 +162,7 @@ Each item in `RESTAURANTS` can define:
 ## Notes
 
 - The La Renommée watch is for 2 guests from Thursday, October 22 through Tuesday, October 27, 2026, inclusive, at any time from 17:00 through 21:00 in `Europe/Paris`. Each notification links to its matched date and party size.
-- Request-only slots are still ignored. The script only alerts on bookable slots with a non-null `access_persistent_id`.
+- The checker alerts only on SevenRooms `book` slots with an access ID. Request-only slots can also have an access ID, but are not reservations.
 - Without `GIST_ID` and `GIST_TOKEN`, deduplication falls back to the current process only.
 - With Gist state enabled, duplicate notifications are suppressed across GitHub Actions runs based on `RENOTIFY_MINUTES`.
 - Suppression logic is:

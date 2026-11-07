@@ -347,7 +347,12 @@ def check_availability(restaurant, date_needed, stats):
 
 def slot_matches(restaurant, date_needed, slot):
     slot_date, _, slot_time = slot["time_iso"].partition(" ")
-    if slot_date != date_needed or slot.get("access_persistent_id") is None:
+    # Request-only times can also have an access ID.
+    if (
+        slot_date != date_needed
+        or slot.get("type") != "book"
+        or not slot.get("access_persistent_id")
+    ):
         return False
     if "time_range" in restaurant:
         start, end = restaurant["time_range"]

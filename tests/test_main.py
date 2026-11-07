@@ -34,7 +34,7 @@ class LaRenommeeTests(unittest.TestCase):
 
     def test_live_response_shape_filters_requests_and_unwanted_times(self):
         request_only = dict(
-            self.slot, type="request", access_persistent_id=None,
+            self.slot, type="request", is_requestable=True,
             time_iso=f"{self.date} 19:30:00",
         )
         later = dict(self.slot, time_iso=f"{self.date} 22:00:00")
